@@ -9,9 +9,9 @@
   <div>
     <div id="cesiumContainer"></div>
     <div id="threeContainer"></div>
-    <van-button @click="goChild">toChild</van-button>
-    <van-button @click="goBack">toMain</van-button>
-    <van-button @click="locate" class="button">locate</van-button>
+    <van-button class="test-button" @click="goChild">toChild</van-button>
+    <van-button class="test-button" @click="goBack">toMain</van-button>
+    <van-button class="test-button" @click="locate">locate</van-button>
   </div>
 </template>
 <script setup lang="ts">
@@ -386,6 +386,10 @@ onMounted(() => {
   position: absolute;
   pointer-events: none;
   cursor: default;
+}
+.test-button {
+  width: 20%;
+  margin-left: 1vmin;
 }
 .button {
   position: absolute;

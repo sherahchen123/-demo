@@ -9,7 +9,7 @@
   <div>
     <div id="map"></div>
     <van-button class="test-button"  @click="goChild">toChild</van-button>
-    <van-button @click="goCesium">toCesium</van-button>
+    <van-button class="test-button" @click="goCesium">toCesium</van-button>
     <!-- <div class="chart-box">
       <VChart :option="chartOption"></VChart>
     </div> -->
@@ -76,7 +76,8 @@ onMounted(() => {
   height: 10rem;
 }
 .test-button {
-  width: 30px;
+  width: 20%;
+  margin-left: 1vmin;
 }
 #map {
   width: 100%;
