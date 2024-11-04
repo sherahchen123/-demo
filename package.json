@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "jest"
   },
   "dependencies": {
     "@antv/l7": "^2.19.11",
@@ -27,8 +28,12 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.1.0",
+    "@vue/test-utils": "^2.4.6",
     "amfe-flexible": "^2.2.1",
+    "babel-jest": "^29.7.0",
     "cesium": "^1.105.0",
+    "husky": "^9.1.6",
+    "jest": "^29.7.0",
     "postcss-pxtorem": "^6.0.0",
     "sass": "^1.62.1",
     "sass-loader": "^13.2.2",
@@ -38,5 +43,10 @@
     "vite": "^4.3.5",
     "vite-plugin-cesium": "^1.2.22",
     "vue-tsc": "^1.4.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test"
+    }
   }
 }

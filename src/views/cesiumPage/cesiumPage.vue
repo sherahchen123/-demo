@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import { Viewer } from "cesium";
 import * as Cesium from "cesium";
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import * as THREE from "three";
 import Navigation from "@/components/Navigation.vue";
@@ -40,8 +40,8 @@ import { getSpaceToolsConfig } from "@/api/index";
 //     count.value = Object.keys(Gdal.drivers.raster).length + Object.keys(Gdal.drivers.vector).length;
 // });
 
-let tools: any = [];
-tools = getConfig();
+let tools = ref<any[]>([]);
+// tools = getConfig();
 let three = {
   renderer: null,
   camera: null,
@@ -58,7 +58,7 @@ async function getConfig() {
   await getSpaceToolsConfig()
     .then((res) => {
       console.log(res);
-      return res
+      tools.value = res;
     })
     .catch(() => {
       throw new Error("err.message");
@@ -292,7 +292,8 @@ function locate() {
 let viewer: any = null;
 let cesiumKey: any =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1Mjc2NjEwYS0zOTI1LTQwMjYtODc5ZC00MDQzZjUzNjdjOTUiLCJpZCI6MTQzNDc3LCJpYXQiOjE2ODU2MTIzODl9.z97aaNTIbK4qmvEAXUY2N6AxeLuY0NvrROdQMKoqVcM";
-onMounted(() => {
+onMounted(async () => {
+  await getConfig();
   Cesium.Ion.defaultAccessToken = cesiumKey;
   viewer = new Viewer("cesiumContainer", {
     animation: true, // * 左下角圆盘 速度控制器
