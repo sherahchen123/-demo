@@ -12,6 +12,7 @@
     <van-button class="test-button" @click="goChild">toChild</van-button>
     <van-button class="test-button" @click="goBack">toMain</van-button>
     <van-button class="test-button" @click="locate">locate</van-button>
+    <navigation :tools="tools"></navigation>
   </div>
 </template>
 <script setup lang="ts">
@@ -20,6 +21,8 @@ import * as Cesium from "cesium";
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
 import * as THREE from "three";
+import Navigation from "@/components/Navigation.vue";
+import { getSpaceToolsConfig } from "@/api/index";
 
 // import workerUrl from 'gdal3.js/dist/package/gdal3.js?url'
 // import dataUrl from 'gdal3.js/dist/package/gdal3WebAssembly.data?url'
@@ -37,7 +40,8 @@ import * as THREE from "three";
 //     count.value = Object.keys(Gdal.drivers.raster).length + Object.keys(Gdal.drivers.vector).length;
 // });
 
-
+let tools: any = [];
+tools = getConfig();
 let three = {
   renderer: null,
   camera: null,
@@ -50,6 +54,16 @@ let minWGS841 = [116.23, 39.55];
 let maxWGS841 = [117.23, 41.55];
 // let ThreeContainer: any = null;
 const router = useRouter();
+async function getConfig() {
+  await getSpaceToolsConfig()
+    .then((res) => {
+      console.log(res);
+      return res
+    })
+    .catch(() => {
+      throw new Error("err.message");
+    });
+}
 function goBack() {
   router.push({ path: "/" });
 }
@@ -74,7 +88,7 @@ function initThree() {
   //   three.renderer.domElement
   // );
   const ThreeContainer = document.getElementById("threeContainer");
-  ThreeContainer.appendChild(three.renderer.domElement); 
+  ThreeContainer.appendChild(three.renderer.domElement);
 }
 function init3DObject() {
   let entity = {

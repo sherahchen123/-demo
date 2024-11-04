@@ -1,0 +1,59 @@
+[
+  {
+    "label": "三维分析工具箱",
+    "id": "1",
+    "url": "/",
+    "children": [
+      {
+        "label": "数据查询",
+        "code": "1",
+        "url": "/DataQuery/index"
+      },
+      {
+        "label": "测量",
+        "code": "2",
+        "url": "/Measure/index"
+      },
+      {
+        "label": "标注",
+        "code": "3",
+        "url": "/Remark/index"
+      },
+      {
+        "label": "卷帘",
+        "code": "4",
+        "url": "/"
+      },
+      {
+        "label": "通视分析",
+        "code": "5",
+        "url": "/"
+      },
+      {
+        "label": "天际线分析",
+        "code": "6",
+        "url": "/"
+      },
+      {
+        "label": "阴影分析",
+        "code": "7",
+        "url": "/"
+      },
+      {
+        "label": "限高分析",
+        "code": "8",
+        "url": "/"
+      },
+      {
+        "label": "光源设置",
+        "code": "9",
+        "url": "/"
+      },
+      {
+        "label": "坡度分析",
+        "code": "10",
+        "url": "/"
+      }
+    ]
+  }
+]
