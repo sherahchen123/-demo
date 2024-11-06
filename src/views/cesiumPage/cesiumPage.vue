@@ -1,28 +1,38 @@
-<!--
- * @Author: chenxiaoxuan
- * @Date: 2023-05-08 16:15:13
- * @LastEditTime: 2023-06-02 09:20:16
- * @LastEditors: chenxiaoxuan
- * @Description: 
--->
 <template>
   <div>
     <div id="cesiumContainer"></div>
     <div id="threeContainer"></div>
+    <div id="rainflake"></div>
+  <div class="rainBackground1"></div>
+  <div class="rainBackground2"></div>
+  <canvas id="rainCanvas"></canvas>
+
+  <div class="banner">
+    <div class="lightning">
+      <div class="lightning1">
+        <img src="https://www.jiangweishan.com/demo/lightning1.png" />
+      </div>
+      <div class="lightning2">
+        <img src="https://www.jiangweishan.com/demo/lightning2.png" />
+      </div>
+    </div>
+  </div>
     <van-button class="test-button" @click="goChild">toChild</van-button>
     <van-button class="test-button" @click="goBack">toMain</van-button>
     <van-button class="test-button" @click="locate">locate</van-button>
+    <van-button class="test-button" @click="rain">下雨打雷</van-button>
     <navigation :tools="tools"></navigation>
   </div>
 </template>
 <script setup lang="ts">
 import { Viewer } from "cesium";
 import * as Cesium from "cesium";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import * as THREE from "three";
 import Navigation from "@/components/Navigation.vue";
 import { getSpaceToolsConfig } from "@/api/index";
+import { addRain } from './rain2d'; // 引入rain2d
 
 // import workerUrl from 'gdal3.js/dist/package/gdal3.js?url'
 // import dataUrl from 'gdal3.js/dist/package/gdal3WebAssembly.data?url'
@@ -70,6 +80,48 @@ function goBack() {
 function goChild() {
   router.push({ name: "next" });
 }
+let rainAnimation: any = null;
+
+function rain() {
+  const canvas = document.getElementById("rainCanvas") as HTMLCanvasElement;
+  const lightning = document.querySelector(".lightning") as HTMLElement;
+  const bg1 = document.querySelector(".rainBackground1") as HTMLElement;
+  const bg2 = document.querySelector(".rainBackground2") as HTMLElement;
+  
+  if (!canvas || !lightning || !bg1 || !bg2) return;
+  
+  if (canvas.style.display === "none" || !canvas.style.display) {
+    canvas.style.display = "block";
+    lightning.style.display = "block";
+    bg1.style.display = "block";
+    bg2.style.display = "block";
+    
+    const cesiumContainer = document.getElementById("cesiumContainer");
+    canvas.width = cesiumContainer.clientWidth;
+    canvas.height = cesiumContainer.clientHeight;
+    
+    rainAnimation = addRain();
+  } else {
+    canvas.style.display = "none";
+    lightning.style.display = "none";
+    bg1.style.display = "none";
+    bg2.style.display = "none";
+    
+    if (rainAnimation && rainAnimation.stop) {
+      rainAnimation.stop();
+    }
+  }
+}
+
+function handleResize() {
+  const canvas = document.getElementById("rainCanvas");
+  if (canvas.style.display === "block") {
+    const cesiumContainer = document.getElementById("cesiumContainer");
+    canvas.width = cesiumContainer.clientWidth;
+    canvas.height = cesiumContainer.clientHeight;
+  }
+}
+
 function initThree() {
   let fov = 45;
   let width = window.innerWidth;
@@ -387,6 +439,14 @@ onMounted(async () => {
   // promise.then(() => {
   //   viewer.flyTo(promise);
   // });
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+  if (rainAnimation && rainAnimation.stop) {
+    rainAnimation.stop();
+  }
 });
 </script>
 <style scoped>
@@ -413,4 +473,179 @@ onMounted(async () => {
   width: 0.11rem;
   height: 0.11rem;
 }
+#rainflake {
+    --size: 2px;
+    --hsize: 12px;
+    width: var(--size);
+    height: var(--hsize);
+    border-radius: 200% 200% 0 0;
+    position: absolute;
+    top: -5vh;
+    background: linear-gradient(to bottom,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0.6));
+  }
+
+  .rainBackground1 {
+    position: absolute;
+    width: 100%;
+    height: 0%;
+    background: rgba(255, 255, 255, 0.24);
+    animation: flash_light_background 5.7s infinite;
+    top: 0;
+    pointer-events: none;
+    z-index: 3;
+    /* display: none; */
+  }
+
+  .rainBackground2 {
+    position: absolute;
+    width: 100%;
+    height: 0%;
+    background: rgba(255, 255, 255, 0.2);
+    animation: flash_light_background 5.1s infinite;
+    animation-delay: -2.33s;
+    top: 0;
+    pointer-events: none;
+    z-index: 4;
+    /* display: none; */
+  }
+
+  @keyframes rainfall {
+    0% {
+      transform: translate3d(var(--left-ini), 0, 0);
+    }
+
+    75% {
+      transform: translate3d(var(--left-ini), 100vh, 0);
+    }
+
+    100% {
+      transform: translate3d(var(--left-end), 100vh, 0);
+    }
+  }
+
+  /* @for $i from 1 through 150 {
+  #rainflake:nth-child(#{$i}) {
+    --size: #{random(10) * 0.2}px;
+    --hsize: #{random(3) * 12}px;
+    --left-ini: #{random(20) - 10}vw;
+    --left-end: #{random(20) - 10}vw;
+    left: #{random(100)}vw;
+    animation: rainfall #{0.5 + random(3)}s linear infinite;
+    animation-delay: -#{random(10)}s;
+  }
+} */
+
+  #rainflake:nth-child(6n) {
+    filter: blur(1px);
+  }
+
+  #rainCanvas {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.05);
+    width: 100%;
+    height: 100%;
+    left: 0rem;
+    pointer-events: none;
+    /* display: none; */
+  }
+
+  .lightning {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    width: 100%;
+    /* display: none; */
+  }
+
+  .lightning div {
+    position: absolute;
+    overflow: hidden;
+  }
+
+  @keyframes flash_light_background {
+    0% {
+      height: 100%;
+      opacity: 0.2;
+    }
+
+    7.5% {
+      height: 100%;
+    }
+
+    8%,
+    12%,
+    16% {
+      opacity: 0.4;
+    }
+
+    10%,
+    14% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0;
+    }
+
+    100% {
+      height: 100%;
+      opacity: 0;
+    }
+  }
+
+  @keyframes flash_light {
+    0% {
+      height: 0px;
+      opacity: 0.5;
+    }
+
+    7.5% {
+      height: 30rem;
+    }
+
+    8%,
+    12%,
+    16% {
+      opacity: 0.5;
+    }
+
+    10%,
+    14% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0;
+    }
+
+    100% {
+      height: 30rem;
+      opacity: 0;
+    }
+  }
+
+  .lightning div img {
+    display: block;
+    margin: auto;
+    width: 100%;
+    height: 30rem;
+    filter: saturate(40%);
+  }
+
+  .lightning .lightning1 {
+    position: absolute;
+    left: 30%;
+    animation: flash_light 5.7s infinite;
+    pointer-events: none;
+  }
+
+  .lightning .lightning2 {
+    position: absolute;
+    left: 70%;
+    animation: flash_light 5.1s infinite;
+    animation-delay: -2.33s;
+    pointer-events: none;
+  }
 </style>
