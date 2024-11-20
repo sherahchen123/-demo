@@ -16,7 +16,8 @@ import * as echarts from 'echarts'
 //创建应用实例对象
 const app = createApp(App);
 
-app.config.globalProperties.$echarts = echarts
+// app.config.globalProperties.$echarts = echarts
+app.provide('$echarts', echarts); // 使用 provide 提供 ECharts
 // app.component('VChart', VCharts)
 app
   .use(router)

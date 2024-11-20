@@ -47,6 +47,12 @@
         >threejs效果</van-button
       >
       <van-button class="effect-button" @click="handleEffect(10)"
+        >进入threejs内部</van-button
+      >
+      <van-button class="effect-button" @click="handleEffect(11)"
+        >threejs出来</van-button
+      >
+      <van-button class="effect-button" @click="handleEffect(12)"
         >重置</van-button
       >
     </div>
@@ -319,9 +325,11 @@ export default defineComponent({
           break;
 
         case 9: // threejs效果
-          if (!currentImage.value) {
-            console.warn("请先上传图片");
-            return;
+          // 检查是否上传了图片
+          if (!currentImage.value || !uploadedImage.value) {
+            console.warn("请先上传图片"); // 提示用户
+            alert("请先上传图片"); // 弹出提示框
+            return; // 终止后续操作
           }
 
           // 隐藏原图片
@@ -387,8 +395,55 @@ export default defineComponent({
 
           animate();
           break;
+        case 10: // 进入 three.js 内部
+          if (!renderer.value || !camera.value || !cube.value) return;
+          // 设置相机位置到方块内部中心
+          // camera.value.position.set(0, 0, 0); // 进入方块内部
+          // camera.value.lookAt(cube.value.position); // 让相机朝向方块中心
+          const targetPositionIn = new THREE.Vector3(0, 0, 0); // 目标位置
+          const durationIn = 3000; // 动画持续时间（毫秒）
+          const startPositionIn = camera.value.position.clone(); // 起始位置
+          const startTimeIn = performance.now(); // 动画开始时间
 
-        case 10: // 重置
+          const animateIn = (currentTime: number) => {
+            const elapsedTime = currentTime - startTimeIn;
+            const t = Math.min(elapsedTime / durationIn, 1); // 计算进度
+
+            // 线性插值计算相机位置
+            camera.value.position.lerpVectors(startPositionIn, targetPositionIn, t);
+            camera.value.lookAt(cube.value.position); // 让相机朝向方块中心
+
+            if (t < 1) {
+              requestAnimationFrame(animateIn); // 继续动画
+            }
+          };
+
+          requestAnimationFrame(animateIn); // 开始动画
+          break;
+        case 11: // three.js 出来
+          if (!renderer.value || !camera.value || !cube.value) return;
+
+          const targetPositionOut = new THREE.Vector3(0, 0, 5); // 目标位置
+          const durationOut = 3000; // 动画持续时间（毫秒）
+          const startPositionOut = camera.value.position.clone(); // 起始位置
+          const startTimeOut = performance.now(); // 动画开始时间
+
+          const animateOut = (currentTime: number) => {
+            const elapsedTime = currentTime - startTimeOut;
+            const t = Math.min(elapsedTime / durationOut, 1); // 计算进度
+
+            // 线性插值计算相机位置
+            camera.value.position.lerpVectors(startPositionOut, targetPositionOut, t);
+            camera.value.lookAt(cube.value.position); // 让相机朝向方块中心
+
+            if (t < 1) {
+              requestAnimationFrame(animateOut); // 继续动画
+            }
+          };
+
+          requestAnimationFrame(animateOut); // 开始动画
+          break;
+        case 12: // 重置
           if (!canvas.value || !context.value || !currentImage.value) return;
           
           // 显示原图片
